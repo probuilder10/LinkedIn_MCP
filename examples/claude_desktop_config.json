@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "linkedin": {
+      "command": "linkedin-mcp",
+      "env": {
+        "LINKEDIN_LI_AT": "paste_your_li_at_cookie_here",
+        "LINKEDIN_JSESSIONID": "paste_jsessionid_if_needed",
+        "OPENAI_API_KEY": "optional_for_personalized_messages",
+        "MAX_CONNECTION_REQUESTS_PER_DAY": "80",
+        "MAX_MESSAGES_PER_DAY": "120"
+      }
+    }
+  }
+}

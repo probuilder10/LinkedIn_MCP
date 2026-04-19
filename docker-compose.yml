@@ -1,0 +1,9 @@
+services:
+  linkedin-mcp:
+    build: .
+    container_name: linkedin-mcp
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    stdin_open: true
+    tty: true
