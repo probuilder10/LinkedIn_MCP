@@ -135,7 +135,8 @@ def register(mcp) -> None:
                     idx = int(step["step"].split("_")[-1]) - 1
                     tpl = followups[idx]
                     body = tpl["body"].replace("{name}", step["full_name"] or "")
-                    client.send_message(message_body=body, recipients=[step["public_id"]])
+                    urn_id = client._resolve_urn_id(step["public_id"])
+                    client.send_message(message_body=body, recipient_urn_ids=[urn_id])
                 db.execute(
                     "UPDATE campaign_steps SET status='sent', sent_at=? WHERE id=?",
                     (datetime.utcnow().isoformat(), step["id"]),

@@ -159,26 +159,41 @@ class LinkedInClient:
     def get_company(self, public_id: str) -> dict[str, Any]:
         return self.api.get_company(public_id)
 
+    def _my_urn_id(self) -> str:
+        entity_urn = self.api.get_user_profile()["miniProfile"]["entityUrn"]
+        return entity_urn.split(":")[-1]
+
     def get_connections(self) -> list[dict[str, Any]]:
-        return self.api.get_profile_connections(self.api.get_user_profile()["miniProfile"]["entityUrn"].split(":")[-1])
+        return self.api.get_profile_connections(self._my_urn_id())
 
     def add_connection(self, profile_public_id: str, message: str = "") -> dict[str, Any]:
         self._check_quota("connection_requests")
         self._jitter()
-        res = self.api.add_connection(profile_public_id=profile_public_id, message=message)
+        err = self.api.add_connection(profile_public_id=profile_public_id, message=message)
         self._bump("connection_requests")
-        return {"ok": not res, "public_id": profile_public_id}  # lib returns False on success
+        return {"ok": not err, "public_id": profile_public_id}  # lib returns True on error
 
-    def send_message(self, message_body: str, conversation_urn_id: str | None = None, recipients: list[str] | None = None) -> dict[str, Any]:
+    def _resolve_urn_id(self, public_id: str) -> str:
+        """Resolve a public slug (e.g. 'john-smith-123') to the member urn_id."""
+        profile = self.api.get_profile(public_id=public_id)
+        entity_urn = profile.get("entityUrn") or profile.get("miniProfile", {}).get("entityUrn", "")
+        return entity_urn.split(":")[-1]
+
+    def send_message(
+        self,
+        message_body: str,
+        conversation_urn_id: str | None = None,
+        recipient_urn_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
         self._check_quota("messages")
         self._jitter()
-        res = self.api.send_message(
+        err = self.api.send_message(
             message_body=message_body,
             conversation_urn_id=conversation_urn_id,
-            recipients=recipients,
+            recipients=recipient_urn_ids,
         )
         self._bump("messages")
-        return {"ok": not res}
+        return {"ok": not err}
 
     def list_conversations(self) -> list[dict[str, Any]]:
         return self.api.get_conversations()
@@ -187,25 +202,34 @@ class LinkedInClient:
         return self.api.get_conversation(conversation_urn_id)
 
     def post_text(self, text: str, visibility: str = "ANYONE") -> dict[str, Any]:
-        # linkedin-api lacks a native post helper; use the internal /voyager/api/contentcreation endpoint via `_fetch`.
+        """Publish a share via the Voyager content-creation endpoint.
+
+        This is an unofficial endpoint; LinkedIn changes it occasionally.
+        visibility: ANYONE | CONNECTIONS-ONLY
+        """
+        import json as _json
+
+        visible_to_conn_only = visibility.upper().startswith("CONN")
         payload = {
-            "commentary": text,
-            "visibility": visibility,
-            "distribution": {
-                "feedDistribution": "MAIN_FEED",
-                "targetEntities": [],
-                "thirdPartyDistributionChannels": [],
-            },
-            "lifecycleState": "PUBLISHED",
-            "isReshareDisabledByAuthor": False,
+            "visibleToConnectionsOnly": visible_to_conn_only,
+            "externalAudienceProviders": [],
+            "commentaryV2": {"text": text, "attributes": []},
+            "origin": "FEED",
+            "allowedCommentersScope": "ALL",
+            "postState": "PUBLISHED",
+            "media": [],
         }
-        res = self.api._fetch(  # type: ignore[attr-defined]
-            "/posts",
-            method="POST",
-            base_request=True,
-            data=payload,
+        res = self.api._post(  # type: ignore[attr-defined]
+            "/contentcreation/normShares",
+            data=_json.dumps(payload),
+            headers={"content-type": "application/json; charset=UTF-8"},
         )
-        return {"status": getattr(res, "status_code", None), "body": getattr(res, "text", "")[:500]}
+        ok = getattr(res, "status_code", 0) in (200, 201)
+        return {
+            "ok": ok,
+            "status": getattr(res, "status_code", None),
+            "body": getattr(res, "text", "")[:500],
+        }
 
     def search_jobs(self, keywords: str | None = None, location_name: str | None = None, limit: int = 25) -> list[dict[str, Any]]:
         return self.api.search_jobs(keywords=keywords, location_name=location_name, limit=limit)

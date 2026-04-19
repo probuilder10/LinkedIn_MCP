@@ -20,25 +20,27 @@ def register(mcp) -> None:
     def send_message(
         body: str,
         conversation_urn_id: str | None = None,
+        recipient_urn_ids: list[str] | None = None,
         recipient_public_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Send a LinkedIn direct message.
 
-        Either `conversation_urn_id` (reply into existing thread) or
-        `recipient_public_ids` (start a new thread with those people) must be provided.
+        Provide exactly one of:
+        - `conversation_urn_id` — reply into an existing thread
+        - `recipient_urn_ids` — member URN ids (short strings, not full `urn:li:...`)
+        - `recipient_public_ids` — slugs; we'll resolve each to a URN id (costs profile views)
         """
-        if not conversation_urn_id and not recipient_public_ids:
-            raise ValueError("provide conversation_urn_id or recipient_public_ids")
-        recipients = None
+        if not any([conversation_urn_id, recipient_urn_ids, recipient_public_ids]):
+            raise ValueError("provide conversation_urn_id, recipient_urn_ids, or recipient_public_ids")
+        client = LinkedInClient.get()
+        urn_ids = list(recipient_urn_ids or [])
         if recipient_public_ids:
-            recipients = [
-                f"urn:li:fs_miniProfile:{p}" if not p.startswith("urn:") else p
-                for p in recipient_public_ids
-            ]
-        return LinkedInClient.get().send_message(
+            for pid in recipient_public_ids:
+                urn_ids.append(client._resolve_urn_id(pid))
+        return client.send_message(
             message_body=body,
             conversation_urn_id=conversation_urn_id,
-            recipients=recipients,
+            recipient_urn_ids=urn_ids or None,
         )
 
     @mcp.tool()
