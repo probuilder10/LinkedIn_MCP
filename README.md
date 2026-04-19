@@ -67,6 +67,17 @@ docker compose build
 docker compose run --rm linkedin-mcp
 ```
 
+### Transports
+
+```bash
+linkedin-mcp                                         # stdio (default, for Claude Desktop)
+linkedin-mcp --transport sse --host 0.0.0.0 --port 8765
+linkedin-mcp --transport streamable-http --port 8765
+linkedin-mcp --no-scheduler                          # disable background jobs
+```
+
+`LINKEDIN_MCP_TRANSPORT`, `LINKEDIN_MCP_HOST`, `LINKEDIN_MCP_PORT` are the env-var equivalents.
+
 ## Connect to Claude Desktop
 
 Copy `examples/claude_desktop_config.json` into your Claude Desktop config
