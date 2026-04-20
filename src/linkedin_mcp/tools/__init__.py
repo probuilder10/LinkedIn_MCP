@@ -1,8 +1,36 @@
 """All MCP tool implementations. Each module exposes `register(mcp)`."""
 
-from . import companies, connections, messaging, posts, profiles, sales_nav, scoring, signals, campaigns, health
+from . import (
+    campaigns,
+    companies,
+    connections,
+    engagement,
+    health,
+    inbox,
+    invitations,
+    messaging,
+    posts,
+    profiles,
+    sales_nav,
+    scoring,
+    signals,
+)
 
-ALL_MODULES = [profiles, companies, connections, messaging, posts, sales_nav, signals, scoring, campaigns, health]
+ALL_MODULES = [
+    profiles,
+    companies,
+    connections,
+    invitations,
+    messaging,
+    inbox,
+    posts,
+    engagement,
+    sales_nav,
+    signals,
+    scoring,
+    campaigns,
+    health,
+]
 
 
 def register_all(mcp) -> None:

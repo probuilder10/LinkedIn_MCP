@@ -121,14 +121,98 @@ class FakeLinkedin:
         return False
 
     def get_conversations(self):
-        return [{"entityUrn": "urn:li:fs_conversation:c1"}]
+        return [
+            {
+                "entityUrn": "urn:li:fs_conversation:c1",
+                "unreadCount": 2,
+                "events": [
+                    {"from": {"publicIdentifier": "alice"}, "text": "Hey, up for a 15-min chat next week?"},
+                ],
+            },
+            {
+                "entityUrn": "urn:li:fs_conversation:c2",
+                "unreadCount": 1,
+                "events": [{"from": {"publicIdentifier": "spammer"}, "text": "Check my page for free trial!"}],
+            },
+            {
+                "entityUrn": "urn:li:fs_conversation:c3",
+                "unreadCount": 1,
+                "events": [{"from": {"publicIdentifier": "bob"}, "text": "Thanks, I'll review and get back."}],
+            },
+            {"entityUrn": "urn:li:fs_conversation:c4", "unreadCount": 0, "events": []},  # read
+        ]
 
     def get_conversation(self, conversation_urn_id):
-        return {"urn": conversation_urn_id, "messages": []}
+        return {
+            "urn": conversation_urn_id,
+            "events": [
+                {"from": {"publicIdentifier": "alice"}, "text": "Hey, up for a quick chat?"},
+                {"from": {"publicIdentifier": "me"}, "text": "Sure, what's the agenda?"},
+                {"from": {"publicIdentifier": "alice"}, "text": "Want to discuss our product stack."},
+            ],
+        }
 
     def _post(self, uri, **kw):
         self._rec("_post", uri=uri)
         return MagicMock(status_code=201, text="{}")
+
+    def get_invitations(self, start=0, limit=3):
+        self._rec("get_invitations", start=start, limit=limit)
+        return [
+            {
+                "entityUrn": "urn:li:invitation:1",
+                "sharedSecret": "s1",
+                "customMessage": "Hey, would love to connect!",
+            },
+            {"entityUrn": "urn:li:invitation:2", "sharedSecret": "s2"},
+            {"entityUrn": "urn:li:invitation:3", "sharedSecret": "s3", "mutualCurrentCompany": ["Acme"]},
+        ]
+
+    def reply_invitation(self, invitation_entity_urn, invitation_shared_secret, action="accept"):
+        self._rec(
+            "reply_invitation",
+            invitation_entity_urn=invitation_entity_urn,
+            action=action,
+        )
+        return False
+
+    def follow_company(self, following_state_urn, following=True):
+        self._rec("follow_company", urn=following_state_urn, following=following)
+
+    def unfollow_entity(self, urn_id):
+        self._rec("unfollow_entity", urn_id=urn_id)
+
+    def remove_connection(self, public_profile_id):
+        self._rec("remove_connection", public_profile_id=public_profile_id)
+        return False
+
+    def get_post_reactions(self, urn_id, max_results=None, results=None):
+        self._rec("get_post_reactions", urn_id=urn_id)
+        return [
+            {"reactorLockup": {"publicIdentifier": "alice", "name": "Alice"}, "reactionType": "LIKE"},
+            {"reactorLockup": {"publicIdentifier": "bob", "name": "Bob"}, "reactionType": "PRAISE"},
+        ]
+
+    def get_post_comments(self, post_urn, comment_count=100):
+        self._rec("get_post_comments", post_urn=post_urn)
+        return [{"commenter": {"publicIdentifier": "carol"}, "commentary": {"text": "Great post!"}}]
+
+    def get_profile_posts(self, public_id=None, urn_id=None, post_count=10):
+        self._rec("get_profile_posts", public_id=public_id, urn_id=urn_id)
+        return [
+            {"urn": "urn:li:activity:p1", "numReactions": 42, "numComments": 5, "commentary": "hello"},
+            {"urn": "urn:li:activity:p2", "numReactions": 10, "numComments": 1, "commentary": "world"},
+        ]
+
+    def get_feed_posts(self, limit=-1, offset=0, exclude_promoted_posts=True):
+        return []
+
+    def get_current_profile_views(self):
+        self._rec("get_current_profile_views")
+        return {"numViews": 17, "viewers": []}
+
+    def react_to_post(self, post_urn_id, reaction_type="LIKE"):
+        self._rec("react_to_post", post_urn_id=post_urn_id, reaction_type=reaction_type)
 
 
 @pytest.fixture
