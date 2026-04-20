@@ -14,16 +14,35 @@ open source, running on your own machine against your own account.
 
 ## Features
 
+55 MCP tools and 3 agent prompts, grouped:
+
 - **People & companies**: `search_people`, `get_profile`, `get_profile_contact_info`, `search_companies`, `get_company`, `search_jobs`.
-- **Sales-Nav-style lists**: `salesnav_build_list`, `salesnav_account_list` — natural-language filters (titles, seniority, industries, geo, company keywords).
-- **Connections**: `list_connections`, `send_connection_request` (with optional note, respects daily cap).
-- **Messaging**: `list_conversations`, `get_conversation`, `send_message`, `draft_personalized_message` (LLM-backed if `OPENAI_API_KEY` is set).
-- **Posts**: `publish_post`, `schedule_post`, `list_scheduled_posts`, `cancel_scheduled_post`.
+- **Sales-Nav-style lists**: `salesnav_build_list`, `salesnav_account_list` — natural-language filters.
+- **Connections**: `list_connections`, `send_connection_request`, `remove_connection`.
+- **Invitations**: `list_invitations`, `respond_invitation`, `bulk_accept_invitations` (with spam heuristics), `follow_company`, `unfollow_entity`.
+- **Messaging**: `list_conversations`, `get_conversation`, `send_message`, `draft_personalized_message`.
+- **Inbox triage**: `list_unread`, `triage_inbox` (classifies into reply/schedule_call/ignore/spam), `draft_reply`, `bulk_reply`.
+- **Posts**: `publish_post`, `draft_post`, `schedule_post`, `list_scheduled_posts`, `cancel_scheduled_post`, `react_to_post`, `feed_posts`, `profile_views`.
+- **Engagement analytics**: `my_recent_posts`, `post_reactions`, `post_comments`, `warm_leads_from_post`, `content_performance`.
 - **ICP scoring**: `create_icp`, `list_icps`, `score_prospect`, `list_prospects`, `enrich_company`.
 - **Campaigns**: `create_campaign`, `enroll_prospects`, `start_campaign`, `pause_campaign`, `run_campaign_tick`, `campaign_metrics`, `list_campaigns`.
-- **Signals**: `detect_job_changes`, `detect_hiring_signal`, `list_signals`, `mark_signal_processed`.
+- **Signals**: `detect_job_changes`, `detect_hiring_signal`, `list_signals`, `mark_signal_processed` (can POST to `NOTIFY_WEBHOOK_URL`).
 - **Safety**: `whoami`, `quota_status`, daily caps with jittered delays.
 - **Pre-built agents** as MCP prompts: `prospector`, `outreach`, `signal_watcher`.
+
+## Admin CLI
+
+For ops work that doesn't need an MCP client:
+
+```bash
+linkedin-mcp-admin quota
+linkedin-mcp-admin campaigns list
+linkedin-mcp-admin campaigns tick <name>
+linkedin-mcp-admin prospects list --icp saas_founders --min-score 70
+linkedin-mcp-admin posts list --status scheduled
+linkedin-mcp-admin db backup ./backups/
+linkedin-mcp-admin db reset
+```
 
 ## Architecture
 

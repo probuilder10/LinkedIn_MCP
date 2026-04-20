@@ -26,6 +26,9 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Outbound webhook for signal/campaign notifications (Slack-style JSON).
+    notify_webhook_url: str = ""
+
     def ensure_paths(self) -> None:
         self.linkedin_mcp_db.parent.mkdir(parents=True, exist_ok=True)
 

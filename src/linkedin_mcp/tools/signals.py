@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from ..client import LinkedInClient
+from ..notify import notify
 from ..storage.db import as_list, get_db, jdump, jload
 
 
@@ -54,6 +55,7 @@ def register(mcp) -> None:
                     "INSERT INTO signals(prospect_id, kind, payload) VALUES(?,?,?)",
                     (r["id"], "job_change", jdump(changes[-1])),
                 )
+                notify("job_change", changes[-1])
                 db.execute(
                     "UPDATE prospects SET company=?, title=?, raw=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
                     (new_company, new_title, jdump(fresh), r["id"]),
