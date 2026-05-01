@@ -10,6 +10,29 @@ claude.ai (web) can call directly. Tested on Ubuntu 22.04+ with Caddy.
 - A claude.ai plan that supports Custom Integrations (Pro / Team / Enterprise).
 - A LinkedIn account session — you'll need its `li_at` cookie.
 
+## Fast path — one-liner
+
+If you trust the script, the entire server-side setup collapses into:
+
+```bash
+# Phase 1 — server + service (no public exposure yet)
+curl -fsSL https://raw.githubusercontent.com/probuilder10/LinkedIn_MCP/claude/linkedin-mcp-integration-UHolL/deploy/bootstrap.sh \
+  | sudo bash
+
+# paste your li_at into the .env it created:
+sudo nano /opt/linkedin-mcp/app/.env
+sudo systemctl start linkedin-mcp
+
+# Phase 2 — once DNS for your subdomain points at this VPS:
+sudo DOMAIN=linkedin.yourdomain.com bash /opt/linkedin-mcp/app/deploy/bootstrap.sh
+# the script prints the Bearer token to paste into claude.ai
+```
+
+The script is idempotent — safe to re-run after editing `.env` or to upgrade
+to a newer commit. Read it first if you're paranoid: `deploy/bootstrap.sh`.
+
+If you'd rather understand each step, follow the manual sections below.
+
 ## 1. Get your `li_at` cookie
 
 1. Open <https://www.linkedin.com> in a browser logged in as the target account.

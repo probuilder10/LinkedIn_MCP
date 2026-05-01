@@ -116,9 +116,17 @@ claude.ai  ──HTTPS + Bearer──►  Caddy  ──127.0.0.1:8765──►  
 ```
 
 Files in `deploy/`:
+- `bootstrap.sh` — one-shot installer (`curl … | sudo bash`, idempotent, two-phase)
 - `linkedin-mcp.service` — hardened systemd unit
 - `Caddyfile` — Caddy config with `Authorization: Bearer …` gate and TLS
 - `README.md` — step-by-step (cookie → install → DNS → claude.ai connector → `whoami` verification)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/probuilder10/LinkedIn_MCP/claude/linkedin-mcp-integration-UHolL/deploy/bootstrap.sh | sudo bash
+sudo nano /opt/linkedin-mcp/app/.env       # paste LINKEDIN_LI_AT
+sudo systemctl start linkedin-mcp
+sudo DOMAIN=linkedin.yourdomain.com bash /opt/linkedin-mcp/app/deploy/bootstrap.sh
+```
 
 ## Getting `li_at`
 
