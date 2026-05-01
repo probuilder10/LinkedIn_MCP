@@ -1,0 +1,36 @@
+[Unit]
+Description=LinkedIn MCP server (Streamable HTTP transport)
+Documentation=https://github.com/probuilder10/LinkedIn_MCP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=linkedin
+Group=linkedin
+WorkingDirectory=/opt/linkedin-mcp/app
+EnvironmentFile=/opt/linkedin-mcp/app/.env
+ExecStart=/opt/linkedin-mcp/venv/bin/linkedin-mcp \
+  --transport streamable-http \
+  --host 127.0.0.1 \
+  --port 8765
+Restart=on-failure
+RestartSec=5s
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+ReadWritePaths=/opt/linkedin-mcp/data
+
+[Install]
+WantedBy=multi-user.target

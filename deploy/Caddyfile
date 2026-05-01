@@ -1,0 +1,43 @@
+# Caddy config for exposing the LinkedIn MCP server to claude.ai (or any
+# remote MCP client) over HTTPS with a Bearer-token gate.
+#
+# 1. Replace `linkedin.example.com` with your subdomain.
+# 2. Generate a token: `openssl rand -hex 32` and paste it after `Bearer `.
+#    Use the SAME value in your claude.ai custom integration's Authorization header.
+# 3. Drop this file at /etc/caddy/Caddyfile and `sudo systemctl reload caddy`.
+#
+# Caddy provisions a Let's Encrypt cert automatically once DNS resolves.
+
+linkedin.example.com {
+    @authorized header Authorization "Bearer REPLACE_WITH_OPENSSL_RAND_HEX_32"
+
+    handle @authorized {
+        reverse_proxy 127.0.0.1:8765 {
+            # Streamable HTTP transport needs immediate flush + no idle timeouts
+            flush_interval -1
+            transport http {
+                read_timeout 0
+                write_timeout 0
+            }
+        }
+    }
+
+    handle {
+        respond "Unauthorized" 401
+    }
+
+    encode zstd gzip
+
+    log {
+        output file /var/log/caddy/linkedin-mcp.log
+        format json
+    }
+
+    # Common hardening headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        -Server
+    }
+}

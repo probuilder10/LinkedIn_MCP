@@ -103,6 +103,23 @@ Copy `examples/claude_desktop_config.json` into your Claude Desktop config
 (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS) and
 restart Claude.
 
+## Connect to Claude.ai (web)
+
+claude.ai web only talks to remote MCP servers over HTTPS with auth. Full
+runbook for an Ubuntu VPS + Caddy + Bearer-token gating is in
+[`deploy/README.md`](deploy/README.md). High-level shape:
+
+```
+claude.ai  ──HTTPS + Bearer──►  Caddy  ──127.0.0.1:8765──►  linkedin-mcp (systemd)
+                                                                │
+                                                                └── linkedin-api (Voyager)
+```
+
+Files in `deploy/`:
+- `linkedin-mcp.service` — hardened systemd unit
+- `Caddyfile` — Caddy config with `Authorization: Bearer …` gate and TLS
+- `README.md` — step-by-step (cookie → install → DNS → claude.ai connector → `whoami` verification)
+
 ## Getting `li_at`
 
 1. Open `linkedin.com` in a browser where you're logged in.
