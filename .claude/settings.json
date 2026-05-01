@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make lint)",
+      "Bash(make test)",
+      "Bash(make fmt)",
+      "Bash(make dev)",
+      "Bash(make install)",
+      "Bash(make docker)",
+      "Bash(make clean)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(git status)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git merge-base:*)",
+      "Bash(linkedin-mcp --help)",
+      "Bash(linkedin-mcp-admin --help)",
+      "Bash(linkedin-mcp-admin quota)",
+      "Bash(linkedin-mcp-admin campaigns list:*)",
+      "Bash(linkedin-mcp-admin prospects list:*)",
+      "Bash(linkedin-mcp-admin posts list:*)",
+      "Bash(wc:*)",
+      "Bash(jq:*)",
+      "Read(/home/user/LinkedIn_MCP/**)",
+      "Edit(/home/user/LinkedIn_MCP/src/**)",
+      "Edit(/home/user/LinkedIn_MCP/tests/**)",
+      "Edit(/home/user/LinkedIn_MCP/CLAUDE.md)",
+      "Edit(/home/user/LinkedIn_MCP/.claude/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE_PATH=$(jq -r '.tool_input.file_path // empty'); if [ -n \"$FILE_PATH\" ] && echo \"$FILE_PATH\" | grep -qE '\\.py$' && echo \"$FILE_PATH\" | grep -qE '^/home/user/LinkedIn_MCP/(src|tests)/'; then ruff format \"$FILE_PATH\" >/dev/null 2>&1 || true; ruff check --fix --quiet \"$FILE_PATH\" >/dev/null 2>&1 || true; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
