@@ -8,6 +8,7 @@ from . import (
     health,
     inbox,
     invitations,
+    leads,
     messaging,
     posts,
     profiles,
@@ -29,6 +30,7 @@ ALL_MODULES = [
     signals,
     scoring,
     campaigns,
+    leads,
     health,
 ]
 

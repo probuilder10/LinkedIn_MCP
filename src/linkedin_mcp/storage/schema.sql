@@ -82,3 +82,20 @@ CREATE INDEX IF NOT EXISTS idx_prospects_icp ON prospects(icp_id);
 CREATE INDEX IF NOT EXISTS idx_prospects_status ON prospects(status);
 CREATE INDEX IF NOT EXISTS idx_steps_run_after ON campaign_steps(run_after);
 CREATE INDEX IF NOT EXISTS idx_posts_run_at ON scheduled_posts(run_at, status);
+
+-- TikTok Shop / external brand leads imported from CSV
+CREATE TABLE IF NOT EXISTS brand_leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shop_name TEXT UNIQUE NOT NULL,
+    kalodata_url TEXT,
+    tiktok_profile TEXT,
+    website TEXT,
+    amazon_url TEXT,
+    linkedin_company TEXT,       -- LinkedIn company entityUrn numeric ID (populated by find_brand_contacts)
+    lead_status TEXT NOT NULL DEFAULT 'new',
+    welcome_message TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_brand_leads_status ON brand_leads(lead_status);
+CREATE INDEX IF NOT EXISTS idx_brand_leads_linkedin ON brand_leads(linkedin_company);

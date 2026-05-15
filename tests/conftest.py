@@ -99,7 +99,7 @@ class FakeLinkedin:
 
     def search_companies(self, keywords=None, limit=10):
         self._rec("search_companies", keywords=keywords, limit=limit)
-        return [{"public_id": "acme", "name": "Acme", "industry": "Software Development", "staffCountRange": "C"}]
+        return [{"entityUrn": "urn:li:company:1234", "public_id": "acme", "name": "Acme", "industry": "Software Development", "staffCountRange": "C"}]
 
     def get_company(self, public_id):
         self._rec("get_company", public_id=public_id)

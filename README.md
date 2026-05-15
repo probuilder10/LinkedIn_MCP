@@ -27,6 +27,7 @@ open source, running on your own machine against your own account.
 - **ICP scoring**: `create_icp`, `list_icps`, `score_prospect`, `list_prospects`, `enrich_company`.
 - **Campaigns**: `create_campaign`, `enroll_prospects`, `start_campaign`, `pause_campaign`, `run_campaign_tick`, `campaign_metrics`, `list_campaigns`.
 - **Signals**: `detect_job_changes`, `detect_hiring_signal`, `list_signals`, `mark_signal_processed` (can POST to `NOTIFY_WEBHOOK_URL`).
+- **Brand leads**: `import_brands_csv`, `list_brand_leads`, `find_brand_contacts`, `update_brand_lead`, `brand_lead_stats` — bulk-import TikTok Shop / CSV brand lists and enrich them with LinkedIn company + prospect data.
 - **Safety**: `whoami`, `quota_status`, daily caps with jittered delays.
 - **Pre-built agents** as MCP prompts: `prospector`, `outreach`, `signal_watcher`.
 
@@ -159,7 +160,7 @@ src/linkedin_mcp/
   storage/schema.sql
   tools/                  # MCP tools, one module per domain
     profiles.py companies.py connections.py messaging.py posts.py
-    sales_nav.py signals.py scoring.py campaigns.py health.py
+    sales_nav.py signals.py scoring.py campaigns.py leads.py health.py
   agents/                 # MCP prompts
     prospector.py outreach.py signal_watcher.py
 ```
